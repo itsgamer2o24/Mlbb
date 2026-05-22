@@ -15,8 +15,8 @@
  */
 
 const SITE_CONFIG = {
-  title: 'MLBB Tournament Hub',
-  season: 'Season 2025',
+  title: 'MLBB Tournament',
+  season: 'Karsa n Friend ',
   description: 'The premier MLBB tournament platform'
 };
 
@@ -35,5 +35,5 @@ const DATA_PATH = 'data';
 // Change these before deploying!
 const ADMIN_CONFIG = {
   username: 'admin',
-  password: 'mlbb2025'   // ← CHANGE THIS
+  password: 'admin123'   // ← CHANGE THIS
 };
