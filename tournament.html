@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Bracket — MLBB Tournament Hub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/bracket.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="particles-bg"></div>
+  <header class="main-header">
+    <div class="header-glow"></div>
+    <div class="container header-inner">
+      <div class="logo-wrap">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <div class="logo-icon"><i class="fas fa-trophy"></i></div>
+          <div class="logo-text">
+            <span class="logo-main">MLBB</span>
+            <span class="logo-sub">TOURNAMENT HUB</span>
+          </div>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="tournaments.html" class="nav-link active"><i class="fas fa-gamepad"></i> Tournaments</a>
+        <a href="leaderboard.html" class="nav-link"><i class="fas fa-crown"></i> Leaderboard</a>
+        <a href="admin/login.html" class="nav-link nav-admin"><i class="fas fa-shield-alt"></i> Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Tournament Info Banner -->
+  <div class="tournament-banner" id="tournamentBanner">
+    <div class="container">
+      <div class="banner-content">
+        <div class="banner-left">
+          <div class="banner-badge" id="bannerStatus">Loading...</div>
+          <h1 class="banner-title" id="bannerTitle">Tournament Name</h1>
+          <div class="banner-meta">
+            <span id="bannerDate"><i class="fas fa-calendar"></i> —</span>
+            <span id="bannerFormat"><i class="fas fa-sitemap"></i> —</span>
+            <span id="bannerTeams"><i class="fas fa-users"></i> — Teams</span>
+          </div>
+        </div>
+        <div class="banner-right">
+          <div class="banner-prize" id="bannerPrize"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="detail-tabs">
+    <div class="container tab-row">
+      <button class="tab-btn active" data-tab="bracket"><i class="fas fa-sitemap"></i> Bracket</button>
+      <button class="tab-btn" data-tab="teams"><i class="fas fa-users"></i> Teams</button>
+      <button class="tab-btn" data-tab="schedule"><i class="fas fa-calendar-alt"></i> Schedule</button>
+      <button class="tab-btn" data-tab="results"><i class="fas fa-list-ol"></i> Results</button>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <section class="tab-content-wrap">
+    <div class="container">
+
+      <!-- BRACKET TAB -->
+      <div class="tab-pane active" id="tab-bracket">
+        <div class="bracket-locked-notice" id="bracketLocked">
+          <div class="lock-icon"><i class="fas fa-lock"></i></div>
+          <h3>Bracket Not Available Yet</h3>
+          <p>The tournament bracket will be revealed once registration closes and the admin seeds the teams.</p>
+          <p class="lock-sub">Check back soon! 🎮</p>
+        </div>
+        <div class="bracket-container" id="bracketContainer" style="display:none">
+          <div class="bracket-scroll-hint"><i class="fas fa-arrows-left-right"></i> Scroll horizontally to view full bracket</div>
+          <div class="bracket-wrapper" id="bracketWrapper"></div>
+        </div>
+      </div>
+
+      <!-- TEAMS TAB -->
+      <div class="tab-pane" id="tab-teams">
+        <div class="teams-grid" id="teamsList">
+          <div class="loading-state"><div class="spinner"></div><p>Loading teams...</p></div>
+        </div>
+      </div>
+
+      <!-- SCHEDULE TAB -->
+      <div class="tab-pane" id="tab-schedule">
+        <div class="schedule-list" id="scheduleList">
+          <div class="loading-state"><div class="spinner"></div><p>Loading schedule...</p></div>
+        </div>
+      </div>
+
+      <!-- RESULTS TAB -->
+      <div class="tab-pane" id="tab-results">
+        <div class="results-list" id="resultsList">
+          <div class="loading-state"><div class="spinner"></div><p>Loading results...</p></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="main-footer">
+    <div class="container footer-inner">
+      <div class="footer-logo"><i class="fas fa-trophy"></i><span>MLBB Tournament Hub</span></div>
+      <p class="footer-copy">© 2025 MLBB Tournament Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/github-db.js"></script>
+  <script src="js/bracket.js"></script>
+  <script src="js/tournament-detail.js"></script>
+</body>
+</html>
