@@ -1078,7 +1078,7 @@ function generateBracket(){
   } else {
     generateSingleBracket(t);
   }
-  saveDB(); renderAdminBracketPreview(); renderResultsList();
+  saveDB(); renderAdminBracketPreview(); renderResultsList(); renderBracketView(); renderStandings(); renderSchedule();
   notify('🔀 Bracket generated!');
 }
 
@@ -1431,7 +1431,7 @@ function confirmResult(matchId){
     }
     advanceDE(t, match, section, ri, mi, wid, loserId);
   } else if(!wid){ match.winner=null; match.score1=null; match.score2=null; }
-  saveDB(); renderResultsList();
+  saveDB(); renderResultsList(); renderBracketView(); renderStandings(); renderSchedule();
   notify(wid&&status==='done'?`✅ M${matchId}: ${t.teams.find(x=>x.id===wid)?.name} wins!`:'✅ Match updated!');
 }
 
@@ -1858,15 +1858,21 @@ function buildSectionBracket(t, rounds, champion){
     const visMatches=round.matches.filter(m=>!(m.isBye&&(!m.team1||!m.team2)));
     if(!visMatches.length) return;
     html+=renderRoundCol(round.name, visMatches, t, false);
-    if(ri<rounds.length-1){
-      const cnt=visMatches.length;
-      html+=`<div class="conn"><svg viewBox="0 0 22 ${cnt*88}" preserveAspectRatio="none">`;
-      for(let i=0;i<cnt;i++){
-        const y1=i*88+44, y2=Math.floor(i/2)*88+44+(i%2===1?-44:44);
-        const mx=22;
-        html+=`<path d="M0 ${y1} H${mx/2} V${y2+(i%2===0?44:-44)} H${mx}" stroke="rgba(34,211,238,0.2)" stroke-width="1.5" fill="none"/>`;
+    if(ri<rounds.length-1 && cnt>0){
+      // Only draw connectors if this round has more than 1 match feeding into next
+      if(cnt>1){
+        html+=`<div class="conn"><svg viewBox="0 0 22 ${cnt*88}" preserveAspectRatio="none">`;
+        for(let i=0;i<cnt;i++){
+          const y1=i*88+44;
+          const y2=(Math.floor(i/2))*88+44;
+          const mx=22;
+          html+=`<path d="M0 ${y1} H${mx/2} V${y2} H${mx}" stroke="rgba(34,211,238,0.2)" stroke-width="1.5" fill="none"/>`;
+        }
+        html+='</svg></div>';
+      } else {
+        // Single match → straight connector line
+        html+=`<div class="conn"><svg viewBox="0 0 22 88" preserveAspectRatio="none"><line x1="0" y1="44" x2="22" y2="44" stroke="rgba(34,211,238,0.2)" stroke-width="1.5"/></svg></div>`;
       }
-      html+='</svg></div>';
     }
   });
   if(champion){
@@ -1975,9 +1981,57 @@ function setView(v){
 }
 
 /* ═══════════════════════════════════════════
+   BRACKET MIGRATION — fixes old brackets missing isBye flags
+═══════════════════════════════════════════ */
+function migrateBracket(){
+  const t=T(); if(!t||!t.bracket) return;
+  const b=t.bracket;
+  let dirty=false;
+
+  // Fix SE brackets: detect matches with one real team + null/undefined other team
+  // that weren't flagged as isBye
+  if(b.rounds?.length){
+    b.rounds.forEach(round=>{
+      round.matches.forEach(m=>{
+        const hasA=m.team1!=null, hasB=m.team2!=null;
+        // A match with exactly one side filled and no winner set, or winner same as only team
+        if(hasA&&!hasB&&!m.isBye){
+          m.isBye=true; m.winner=m.team1; m.status='done'; m.score1=1; m.score2=0;
+          dirty=true;
+        } else if(!hasA&&hasB&&!m.isBye){
+          m.isBye=true; m.winner=m.team2; m.status='done'; m.score1=0; m.score2=1;
+          dirty=true;
+        } else if(!hasA&&!hasB&&!m.isBye){
+          m.isBye=true;
+          dirty=true;
+        }
+      });
+    });
+
+    // After fixing isBye, propagate bye winners into subsequent rounds
+    if(dirty){
+      for(let ri=0;ri<b.rounds.length-1;ri++){
+        b.rounds[ri].matches.forEach((m,mi)=>{
+          if(m.isBye&&m.winner){
+            const nextMatch=b.rounds[ri+1].matches[Math.floor(mi/2)];
+            if(nextMatch){
+              if(mi%2===0&&!nextMatch.team1) nextMatch.team1=m.winner;
+              else if(mi%2===1&&!nextMatch.team2) nextMatch.team2=m.winner;
+            }
+          }
+        });
+      }
+    }
+  }
+
+  if(dirty){ saveDB(); console.log('[migrate] Fixed bracket bye flags'); }
+}
+
+/* ═══════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  migrateBracket();
   renderAll();
   updateAdminLockUI();
 });
