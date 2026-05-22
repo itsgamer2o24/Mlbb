@@ -1085,20 +1085,58 @@ function generateBracket(){
 function generateSingleBracket(t){
   const shuffled=[...t.teams].sort(()=>Math.random()-.5);
   const n=shuffled.length;
+  // Pad to next power of 2
+  const size=Math.pow(2,Math.ceil(Math.log2(Math.max(n,2))));
   let id=1;
+
+  // Seed slots: null = bye
+  const seeds=[];
+  for(let i=0;i<size;i++) seeds.push(shuffled[i]?.id??null);
+
+  // Round 1: pair seeds; byes auto-advance
   const r1=[];
-  for(let i=0;i<n;i+=2)
-    r1.push(makeMat(id++, shuffled[i]?.id, shuffled[i+1]?.id));
-  const rounds=[{name:n<=2?'Grand Final':'Round of '+n, matches:r1}];
-  let prev=r1.length;
-  while(prev>1){
-    const next=Math.ceil(prev/2);
-    const ms=[];
-    for(let i=0;i<next;i++) ms.push(makeMat(id++,null,null));
-    const name=next===1?'Grand Final':next===2?'Semifinals':'Quarterfinals';
-    rounds.push({name,matches:ms});
+  for(let i=0;i<size/2;i++){
+    const a=seeds[i*2]??null;
+    const b=seeds[i*2+1]??null;
+    const m=makeMat(id++,a,b);
+    if(a!==null&&b===null){ m.winner=a; m.status='done'; m.score1=1; m.score2=0; m.isBye=true; }
+    else if(a===null&&b!==null){ m.winner=b; m.status='done'; m.score1=0; m.score2=1; m.isBye=true; }
+    else if(a===null&&b===null){ m.isBye=true; }
+    r1.push(m);
+  }
+
+  // Round naming helper
+  function roundName(matchCount, totalRounds, roundIdx){
+    const remaining = matchCount * 2; // teams still in this round
+    if(matchCount===1) return 'Grand Final';
+    if(matchCount===2) return 'Semifinals';
+    if(matchCount===4) return 'Quarterfinals';
+    return 'Round of '+ remaining;
+  }
+
+  // First round label based on actual (non-bye) teams
+  const r1Name = n<=2 ? 'Grand Final' : 'Round of '+n;
+  const rounds=[{name:r1Name, matches:r1}];
+
+  // Propagate byes into next round
+  let prev=r1;
+  while(prev.length>1){
+    const next=[];
+    for(let i=0;i<prev.length;i+=2){
+      const m=makeMat(id++,null,null);
+      const w1=prev[i]?.winner??null;
+      const w2=prev[i+1]?.winner??null;
+      if(w1) m.team1=w1;
+      if(w2) m.team2=w2;
+      if(w1&&w2===null){ m.winner=w1; m.status='done'; m.score1=1; m.score2=0; m.isBye=true; }
+      else if(w1===null&&w2){ m.winner=w2; m.status='done'; m.score1=0; m.score2=1; m.isBye=true; }
+      next.push(m);
+    }
+    const name=roundName(next.length, 0, 0);
+    rounds.push({name, matches:next});
     prev=next;
   }
+
   if(rounds.length===1) rounds[0].name='Grand Final';
   t.bracket={champion:null, rounds, wb:null, lb:null, gf:null};
   t.nextMatchId=id;
@@ -1315,8 +1353,10 @@ function renderResultsList(){
     }
   } else {
     b.rounds.forEach(round=>{
+      const visMatches=round.matches.filter(m=>!(m.isBye&&(!m.team1||!m.team2)));
+      if(!visMatches.length) return;
       html+=`<div class="sec-title">${round.name}</div>`;
-      round.matches.forEach(m=>{ html+=renderMatchCard(t,m); });
+      visMatches.forEach(m=>{ html+=renderMatchCard(t,m); });
     });
   }
   el.innerHTML=html;
@@ -1814,9 +1854,12 @@ function buildSectionBracket(t, rounds, champion){
   if(!rounds?.length) return '';
   let html='<div class="bracket-toolbar"><div class="bt-legend"><div class="bt-legend-item"><div class="bt-legend-dot" style="background:var(--green)"></div> Done</div><div class="bt-legend-item"><div class="bt-legend-dot" style="background:var(--red)"></div> Live</div><div class="bt-legend-item"><div class="bt-legend-dot" style="background:var(--muted)"></div> Upcoming</div></div></div><div class="bracket">';
   rounds.forEach((round, ri)=>{
-    html+=renderRoundCol(round.name, round.matches, t, false);
+    // Filter out pure-bye matches (both slots null, or auto-bye with no real matchup)
+    const visMatches=round.matches.filter(m=>!(m.isBye&&(!m.team1||!m.team2)));
+    if(!visMatches.length) return;
+    html+=renderRoundCol(round.name, visMatches, t, false);
     if(ri<rounds.length-1){
-      const cnt=round.matches.length;
+      const cnt=visMatches.length;
       html+=`<div class="conn"><svg viewBox="0 0 22 ${cnt*88}" preserveAspectRatio="none">`;
       for(let i=0;i<cnt;i++){
         const y1=i*88+44, y2=Math.floor(i/2)*88+44+(i%2===1?-44:44);
