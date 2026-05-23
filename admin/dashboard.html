@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — MLBB Tournament Hub</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="admin-body">
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-logo">
+      <i class="fas fa-shield-alt"></i>
+      <span>Admin Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-link active" data-section="overview"><i class="fas fa-tachometer-alt"></i> Overview</a>
+      <a href="#" class="sidebar-link" data-section="tournaments"><i class="fas fa-gamepad"></i> Tournaments</a>
+      <a href="#" class="sidebar-link" data-section="teams"><i class="fas fa-users"></i> Teams</a>
+      <a href="#" class="sidebar-link" data-section="matches"><i class="fas fa-shield-alts"></i> Matches</a>
+      <a href="#" class="sidebar-link" data-section="brackets"><i class="fas fa-sitemap"></i> Brackets</a>
+      <a href="#" class="sidebar-link" data-section="settings"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../index.html" class="sidebar-link"><i class="fas fa-external-link-alt"></i> View Site</a>
+      <a href="#" class="sidebar-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <h2 class="topbar-title" id="topbarTitle">Overview</h2>
+      <div class="topbar-right">
+        <span class="admin-badge"><i class="fas fa-user-shield"></i> Admin</span>
+      </div>
+    </div>
+
+    <!-- OVERVIEW SECTION -->
+    <div class="admin-section active" id="section-overview">
+      <div class="stats-row">
+        <div class="admin-stat-card">
+          <div class="asc-icon" style="background:linear-gradient(135deg,#f7b731,#f0932b)"><i class="fas fa-gamepad"></i></div>
+          <div class="asc-data">
+            <span class="asc-num" id="ovTournaments">—</span>
+            <span class="asc-label">Tournaments</span>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="asc-icon" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)"><i class="fas fa-users"></i></div>
+          <div class="asc-data">
+            <span class="asc-num" id="ovTeams">—</span>
+            <span class="asc-label">Teams</span>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="asc-icon" style="background:linear-gradient(135deg,#00b894,#00cec9)"><i class="fas fa-shield-alts"></i></div>
+          <div class="asc-data">
+            <span class="asc-num" id="ovMatches">—</span>
+            <span class="asc-label">Matches</span>
+          </div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="asc-icon" style="background:linear-gradient(135deg,#e17055,#d63031)"><i class="fas fa-trophy"></i></div>
+          <div class="asc-data">
+            <span class="asc-num" id="ovCompleted">—</span>
+            <span class="asc-label">Completed</span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="card-header">
+          <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+        </div>
+        <div id="recentActivity" class="activity-list">
+          <div class="loading-state"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOURNAMENTS SECTION -->
+    <div class="admin-section" id="section-tournaments">
+      <div class="section-toolbar">
+        <h3>Manage Tournaments</h3>
+        <button class="btn-primary" id="btnNewTournament"><i class="fas fa-plus"></i> New Tournament</button>
+      </div>
+      <div class="admin-card">
+        <div id="adminTournamentsList">
+          <div class="loading-state"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAMS SECTION -->
+    <div class="admin-section" id="section-teams">
+      <div class="section-toolbar">
+        <h3>Manage Teams</h3>
+        <div class="toolbar-filters">
+          <select id="teamsFilterTournament" class="admin-select">
+            <option value="">All Tournaments</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="btnNewTeam"><i class="fas fa-plus"></i> Add Team</button>
+      </div>
+      <div class="admin-card">
+        <div id="adminTeamsList">
+          <div class="loading-state"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCHES SECTION -->
+    <div class="admin-section" id="section-matches">
+      <div class="section-toolbar">
+        <h3>Manage Matches</h3>
+        <div class="toolbar-filters">
+          <select id="matchesFilterTournament" class="admin-select">
+            <option value="">All Tournaments</option>
+          </select>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div id="adminMatchesList">
+          <div class="loading-state"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRACKETS SECTION -->
+    <div class="admin-section" id="section-brackets">
+      <div class="section-toolbar">
+        <h3>Bracket Management</h3>
+        <div class="toolbar-filters">
+          <select id="bracketsFilterTournament" class="admin-select">
+            <option value="">Select Tournament</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="btnGenerateBracket"><i class="fas fa-sitemap"></i> Generate Bracket</button>
+      </div>
+      <div class="admin-card">
+        <div id="bracketMgmtArea">
+          <p class="empty-state">Select a tournament to manage its bracket.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS SECTION -->
+    <div class="admin-section" id="section-settings">
+      <div class="admin-card">
+        <div class="card-header"><h3><i class="fas fa-cog"></i> Site Settings</h3></div>
+        <form id="settingsForm" class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Site Title</label>
+              <input type="text" id="siteTitle" value="MLBB Tournament Hub">
+            </div>
+            <div class="form-group">
+              <label>Season Label</label>
+              <input type="text" id="seasonLabel" value="Season 2025">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>GitHub Repository</label>
+              <input type="text" id="settingsRepo" placeholder="owner/repo">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Bracket Visibility</label>
+            <select id="bracketVisibility" class="admin-select">
+              <option value="hidden">Hidden (Admin Only)</option>
+              <option value="visible">Visible to Everyone</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODALS -->
+  <!-- Tournament Modal -->
+  <div class="modal-overlay" id="tournamentModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="tournamentModalTitle">New Tournament</h3>
+        <button class="modal-close" data-modal="tournamentModal"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="tournamentForm" class="admin-form">
+        <input type="hidden" id="tId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tournament Name *</label>
+            <input type="text" id="tName" required placeholder="e.g. Grand Championship 2025">
+          </div>
+          <div class="form-group">
+            <label>Format *</label>
+            <select id="tFormat" class="admin-select">
+              <option value="single_elimination">Single Elimination</option>
+              <option value="double_elimination">Double Elimination</option>
+              <option value="round_robin">Round Robin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="tStartDate">
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="tEndDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Max Teams</label>
+            <input type="number" id="tMaxTeams" min="2" max="256" value="8">
+          </div>
+          <div class="form-group">
+            <label>Prize Pool</label>
+            <input type="text" id="tPrize" placeholder="e.g. ₱50,000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="tStatus" class="admin-select">
+            <option value="upcoming">Upcoming</option>
+            <option value="registration">Registration Open</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="tDescription" rows="3" placeholder="Tournament description..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Bracket Visible to Public</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tBracketPublic">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" data-modal="tournamentModal">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Tournament</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Team Modal -->
+  <div class="modal-overlay" id="teamModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="teamModalTitle">Add Team</h3>
+        <button class="modal-close" data-modal="teamModal"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="teamForm" class="admin-form">
+        <input type="hidden" id="teamId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Team Name *</label>
+            <input type="text" id="teamName" required placeholder="Team name">
+          </div>
+          <div class="form-group">
+            <label>Tournament *</label>
+            <select id="teamTournament" class="admin-select" required></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Team Tag (abbreviation)</label>
+          <input type="text" id="teamTag" maxlength="5" placeholder="e.g. TSM">
+        </div>
+        <div class="form-group">
+          <label>Players (comma separated)</label>
+          <input type="text" id="teamPlayers" placeholder="Player1, Player2, Player3...">
+        </div>
+        <div class="form-group">
+          <label>Contact / Discord</label>
+          <input type="text" id="teamContact" placeholder="Discord tag or contact info">
+        </div>
+        <div class="form-group">
+          <label>Seed (optional)</label>
+          <input type="number" id="teamSeed" min="1" placeholder="1">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" data-modal="teamModal">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Team</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Match Result Modal -->
+  <div class="modal-overlay" id="matchModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Update Match Result</h3>
+        <button class="modal-close" data-modal="matchModal"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="matchForm" class="admin-form">
+        <input type="hidden" id="matchId">
+        <div class="match-result-preview" id="matchPreview"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label id="scoreLabel1">Team 1 Score</label>
+            <input type="number" id="score1" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label id="scoreLabel2">Team 2 Score</label>
+            <input type="number" id="score2" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Winner</label>
+          <select id="matchWinner" class="admin-select">
+            <option value="">— Auto from score —</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Match Date</label>
+            <input type="datetime-local" id="matchDate">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="matchStatus" class="admin-select">
+              <option value="scheduled">Scheduled</option>
+              <option value="live">Live</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" data-modal="matchModal">Cancel</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Result</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box small">
+      <div class="modal-header">
+        <h3>Confirm Action</h3>
+        <button class="modal-close" data-modal="confirmModal"><i class="fas fa-times"></i></button>
+      </div>
+      <p id="confirmMessage" style="padding:0 0 20px">Are you sure?</p>
+      <div class="form-actions">
+        <button class="btn-secondary" data-modal="confirmModal">Cancel</button>
+        <button class="btn-danger" id="confirmYesBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/github-db.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
