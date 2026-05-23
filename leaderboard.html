@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard — MLBB Tournament Hub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="particles-bg"></div>
+  <header class="main-header">
+    <div class="header-glow"></div>
+    <div class="container header-inner">
+      <div class="logo-wrap">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <div class="logo-icon"><i class="fas fa-trophy"></i></div>
+          <div class="logo-text">
+            <span class="logo-main">MLBB</span>
+            <span class="logo-sub">TOURNAMENT HUB</span>
+          </div>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="tournaments.html" class="nav-link"><i class="fas fa-gamepad"></i> Tournaments</a>
+        <a href="leaderboard.html" class="nav-link active"><i class="fas fa-crown"></i> Leaderboard</a>
+        <a href="admin/login.html" class="nav-link nav-admin"><i class="fas fa-shield-alt"></i> Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <div class="container">
+      <h1 class="page-title"><i class="fas fa-crown"></i> Leaderboard</h1>
+      <p class="page-sub">Top performing teams across all tournaments</p>
+    </div>
+  </div>
+
+  <section class="section-content">
+    <div class="container">
+      <div class="podium-wrap" id="podiumWrap"></div>
+      <div class="leaderboard-table-wrap">
+        <table class="leaderboard-table" id="leaderboardTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Team</th>
+              <th>Tournaments</th>
+              <th>Wins</th>
+              <th>Losses</th>
+              <th>Win Rate</th>
+              <th>Championships</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="main-footer">
+    <div class="container footer-inner">
+      <div class="footer-logo"><i class="fas fa-trophy"></i><span>MLBB Tournament Hub</span></div>
+      <p class="footer-copy">© 2025 MLBB Tournament Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/github-db.js"></script>
+  <script src="js/leaderboard.js"></script>
+</body>
+</html>
