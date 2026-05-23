@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leaderboard — MLBB Tournament Hub</title>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header class="hdr">
+  <div class="wrap hdr-inner">
+    <a class="logo" href="index.html"><div class="logo-mark"><i class="fas fa-trophy"></i></div><div class="logo-words"><span class="logo-main">MLBB</span><span class="logo-sub">Tournament Hub</span></div></a>
+    <nav class="main-nav">
+      <a class="nav-a" href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a class="nav-a" href="tournaments.html"><i class="fas fa-gamepad"></i> Tournaments</a>
+      <a class="nav-a on" href="leaderboard.html"><i class="fas fa-crown"></i> Leaderboard</a>
+      <a class="nav-a nav-admin" href="admin/login.html"><i class="fas fa-shield-alt"></i> Admin</a>
+    </nav>
+    <button class="ham" id="ham"><i class="fas fa-bars"></i></button>
+  </div>
+  <nav class="mob-nav" id="mn"><a href="index.html">Home</a><a href="tournaments.html">Tournaments</a><a href="leaderboard.html">Leaderboard</a><a href="admin/login.html">Admin</a></nav>
+</header>
+<div class="pg-hero"><div class="wrap"><h1 class="pg-h1"><i class="fas fa-crown"></i> Leaderboard</h1><p class="pg-sub">Top performing teams across all tournaments</p></div></div>
+<section class="section"><div class="wrap">
+  <div class="podium" id="podium"></div>
+  <div class="lb-wrap">
+    <table class="lb-table">
+      <thead><tr><th>#</th><th>Team</th><th>Played</th><th>Wins</th><th>Losses</th><th>Win Rate</th><th>🏆</th></tr></thead>
+      <tbody id="lbBody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+    </table>
+  </div>
+</div></section>
+<footer class="ftr"><div class="wrap ftr-inner"><div class="ftr-logo"><div class="ftr-logo-m"><i class="fas fa-trophy"></i></div> MLBB Tournament Hub</div><p class="ftr-copy">© 2025 MLBB Tournament Hub</p></div></footer>
+<script src="js/config.js"></script><script src="js/db.js"></script>
+<script>
+document.getElementById('ham').onclick=function(){document.getElementById('mn').classList.toggle('show');};
+Promise.all([DB.read('tournaments'),DB.read('teams'),DB.read('matches')]).then(function(r){
+  var ts=r[0],tms=r[1],ms=r[2],s={};
+  tms.forEach(function(t){s[t.id]={id:t.id,name:t.name,tag:(t.tag||t.name.substring(0,3)).toUpperCase(),played:0,wins:0,losses:0,champs:0};});
+  ms.filter(function(m){return m.status==='completed'&&m.winnerId;}).forEach(function(m){
+    [m.team1Id,m.team2Id].forEach(function(id){if(s[id]){s[id].played++;if(m.winnerId===id)s[id].wins++;else s[id].losses++;}});
+  });
+  ts.filter(function(t){return t.status==='completed'&&t.championTeamId;}).forEach(function(t){if(s[t.championTeamId])s[t.championTeamId].champs++;});
+  var board=Object.values(s).filter(function(x){return x.played>0;}).map(function(x){return Object.assign(x,{wr:Math.round(x.wins/x.played*100)});}).sort(function(a,b){return b.champs-a.champs||b.wins-a.wins||b.wr-a.wr;});
+
+  var pd=document.getElementById('podium');
+  if(board.length){
+    var order=[board[1],board[0],board[2]].filter(Boolean),medals=['🥈','🥇','🥉'],cls=['p2','p1','p3'];
+    pd.innerHTML=order.map(function(t,i){return '<div class="pd-item '+cls[i]+'"><div class="pd-medal">'+medals[i]+'</div><div class="pd-name">'+esc(t.name)+'</div><div class="pd-wl">'+t.wins+'W · '+t.losses+'L · '+t.wr+'%</div>'+(t.champs?'<div style="font-size:11px;color:var(--gold);margin-top:4px;font-weight:800">🏆 '+t.champs+' Champ'+(t.champs>1?'s':'')+'</div>':'')+'</div>';}).join('');
+  }
+  var tb=document.getElementById('lbBody');
+  if(!board.length){tb.innerHTML='<tr><td colspan="7" class="empty">No match results yet. Play some games!</td></tr>';return;}
+  tb.innerHTML=board.map(function(t,i){var r=i+1,rc=r===1?'r1':r===2?'r2':r===3?'r3':'';
+    return '<tr><td><span class="lb-rank '+rc+'">'+r+'</span></td>'+
+      '<td><div class="lb-team-cell"><div class="team-ava" style="width:32px;height:32px;font-size:9px;min-width:32px">'+esc(t.tag)+'</div>'+esc(t.name)+'</div></td>'+
+      '<td>'+t.played+'</td><td style="color:var(--green);font-weight:800">'+t.wins+'</td><td style="color:var(--red)">'+t.losses+'</td>'+
+      '<td style="color:var(--green);font-weight:800">'+t.wr+'%</td><td style="color:var(--gold);text-align:center;font-weight:800">'+(t.champs||'—')+'</td></tr>';
+  }).join('');
+});
+</script>
+</body></html>

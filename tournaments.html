@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournaments — MLBB Tournament Hub</title>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header class="hdr">
+  <div class="wrap hdr-inner">
+    <div class="logo"><div class="logo-mark"><i class="fas fa-trophy"></i></div><div class="logo-words"><span class="logo-main">MLBB</span><span class="logo-sub">Tournament Hub</span></div></div>
+    <nav class="main-nav">
+      <a class="nav-a" href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a class="nav-a on" href="tournaments.html"><i class="fas fa-gamepad"></i> Tournaments</a>
+      <a class="nav-a" href="leaderboard.html"><i class="fas fa-crown"></i> Leaderboard</a>
+      <a class="nav-a nav-admin" href="admin/login.html"><i class="fas fa-shield-alt"></i> Admin</a>
+    </nav>
+    <button class="ham" id="ham"><i class="fas fa-bars"></i></button>
+  </div>
+  <nav class="mob-nav" id="mn"><a href="index.html">Home</a><a href="tournaments.html">Tournaments</a><a href="leaderboard.html">Leaderboard</a><a href="admin/login.html">Admin</a></nav>
+</header>
+<div class="pg-hero"><div class="wrap"><h1 class="pg-h1"><i class="fas fa-gamepad"></i> Tournaments</h1><p class="pg-sub">All active, upcoming, and completed tournaments</p></div></div>
+<section class="section"><div class="wrap">
+  <div class="filters">
+    <div class="fbtns">
+      <button class="fb on" data-f="all">All</button>
+      <button class="fb" data-f="ongoing">Ongoing</button>
+      <button class="fb" data-f="registration">Registration</button>
+      <button class="fb" data-f="upcoming">Upcoming</button>
+      <button class="fb" data-f="completed">Completed</button>
+    </div>
+    <div class="srch-wrap"><i class="fas fa-search"></i><input type="text" id="srch" placeholder="Search tournaments..."></div>
+  </div>
+  <div class="cards-grid" id="list"><div class="loading"><div class="spinner"></div><span>Loading...</span></div></div>
+</div></section>
+<footer class="ftr"><div class="wrap ftr-inner"><div class="ftr-logo"><div class="ftr-logo-m"><i class="fas fa-trophy"></i></div> MLBB Tournament Hub</div><p class="ftr-copy">© 2025 MLBB Tournament Hub</p></div></footer>
+<script src="js/config.js"></script><script src="js/db.js"></script>
+<script>
+document.getElementById('ham').onclick=function(){document.getElementById('mn').classList.toggle('show');};
+function stCls(s){return{ongoing:'st-ongoing',registration:'st-registration',upcoming:'st-upcoming',completed:'st-completed'}[s]||'st-upcoming';}
+function stLbl(s){return{upcoming:'Upcoming',registration:'Registration',ongoing:'Ongoing',completed:'Completed'}[s]||s;}
+function fmtLbl(f){return{single_elimination:'Single Elimination',double_elimination:'Double Elimination',round_robin:'Round Robin'}[f]||f;}
+var all=[];
+function card(t){
+  return '<div class="t-card" onclick="location.href=\'tournament.html?id='+t.id+'\'">' +
+    '<div class="tc-head"><div class="tc-code">'+esc(t.name.substring(0,4).toUpperCase())+'</div><span class="tc-badge '+stCls(t.status)+'">'+stLbl(t.status)+'</span></div>' +
+    '<div class="tc-body"><div class="tc-name">'+esc(t.name)+'</div><div class="tc-meta"><span><i class="fas fa-sitemap"></i> '+fmtLbl(t.format)+'</span>'+(t.startDate?'<span><i class="fas fa-calendar"></i> '+fmtDate(t.startDate)+'</span>':'')+(t.endDate?'<span><i class="fas fa-flag-checkered"></i> '+fmtDate(t.endDate)+'</span>':'')+'</div>'+(t.description?'<div class="tc-desc">'+esc(t.description)+'</div>':'')+'</div>' +
+    '<div class="tc-foot"><span class="tc-teams"><i class="fas fa-users"></i> Max '+(t.maxTeams||'?')+'</span>'+(t.prize?'<span class="tc-prize"><i class="fas fa-trophy"></i> '+esc(t.prize)+'</span>':'')+'</div></div>';
+}
+function render(list){var c=document.getElementById('list');c.innerHTML=list.length?list.slice().reverse().map(card).join(''):'<p class="empty" style="grid-column:1/-1">No tournaments found.</p>';}
+function go(){var f=document.querySelector('.fb.on').dataset.f,q=document.getElementById('srch').value.toLowerCase();var r=all;if(f!=='all')r=r.filter(function(t){return t.status===f;});if(q)r=r.filter(function(t){return (t.name||'').toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q);});render(r);}
+document.querySelectorAll('.fb').forEach(function(b){b.onclick=function(){document.querySelectorAll('.fb').forEach(function(x){x.classList.remove('on');});b.classList.add('on');go();};});
+document.getElementById('srch').oninput=go;
+DB.read('tournaments').then(function(ts){all=ts;render(ts);});
+</script>
+</body></html>

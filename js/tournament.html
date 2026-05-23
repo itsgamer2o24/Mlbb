@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournament — MLBB Tournament Hub</title>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header class="hdr">
+  <div class="wrap hdr-inner">
+    <a class="logo" href="index.html"><div class="logo-mark"><i class="fas fa-trophy"></i></div><div class="logo-words"><span class="logo-main">MLBB</span><span class="logo-sub">Tournament Hub</span></div></a>
+    <nav class="main-nav">
+      <a class="nav-a" href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a class="nav-a on" href="tournaments.html"><i class="fas fa-gamepad"></i> Tournaments</a>
+      <a class="nav-a" href="leaderboard.html"><i class="fas fa-crown"></i> Leaderboard</a>
+      <a class="nav-a nav-admin" href="admin/login.html"><i class="fas fa-shield-alt"></i> Admin</a>
+    </nav>
+    <button class="ham" id="ham"><i class="fas fa-bars"></i></button>
+  </div>
+  <nav class="mob-nav" id="mn"><a href="index.html">Home</a><a href="tournaments.html">Tournaments</a><a href="leaderboard.html">Leaderboard</a><a href="admin/login.html">Admin</a></nav>
+</header>
+
+<div class="tbanner">
+  <div class="wrap">
+    <div class="tbanner-inner">
+      <div>
+        <span class="tb-status st-upcoming" id="tBadge">Loading...</span>
+        <div class="tb-name" id="tName">—</div>
+        <div class="tb-meta">
+          <span id="tDate"><i class="fas fa-calendar"></i> —</span>
+          <span id="tFmt"><i class="fas fa-sitemap"></i> —</span>
+          <span id="tTeams"><i class="fas fa-users"></i> —</span>
+        </div>
+      </div>
+      <div class="tb-prize" id="tPrize"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="wrap">
+    <button class="tab-b on" data-t="bracket"><i class="fas fa-sitemap"></i> Bracket</button>
+    <button class="tab-b" data-t="teams"><i class="fas fa-users"></i> Teams</button>
+    <button class="tab-b" data-t="schedule"><i class="fas fa-calendar-alt"></i> Schedule</button>
+    <button class="tab-b" data-t="results"><i class="fas fa-list-ol"></i> Results</button>
+  </div>
+</div>
+
+<div class="tab-content"><div class="wrap">
+  <div class="tab-pane on" id="tab-bracket">
+    <div class="b-lock" id="bLock">
+      <span class="b-lock-icon"><i class="fas fa-lock"></i></span>
+      <h3>Bracket Not Revealed Yet</h3>
+      <p>The tournament bracket will be made public once the admin seeds and starts the tournament.</p>
+      <p style="margin-top:12px;font-size:22px">⚔️</p>
+    </div>
+    <div id="bShow" style="display:none">
+      <div class="b-hint"><i class="fas fa-arrows-left-right"></i> Scroll to view full bracket</div>
+      <div class="b-scroll"><div class="b-inner" id="bInner"></div></div>
+    </div>
+  </div>
+  <div class="tab-pane" id="tab-teams"><div class="teams-grid" id="teamsList"><div class="loading"><div class="spinner"></div></div></div></div>
+  <div class="tab-pane" id="tab-schedule"><div class="match-list" id="schedList"><div class="loading"><div class="spinner"></div></div></div></div>
+  <div class="tab-pane" id="tab-results"><div class="match-list" id="resList"><div class="loading"><div class="spinner"></div></div></div></div>
+</div></div>
+
+<footer class="ftr"><div class="wrap ftr-inner"><div class="ftr-logo"><div class="ftr-logo-m"><i class="fas fa-trophy"></i></div> MLBB Tournament Hub</div><p class="ftr-copy">© 2025 MLBB Tournament Hub</p></div></footer>
+<script src="js/config.js"></script><script src="js/db.js"></script>
+<script>
+document.getElementById('ham').onclick=function(){document.getElementById('mn').classList.toggle('show');};
+document.querySelectorAll('.tab-b').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tab-b').forEach(function(x){x.classList.remove('on');});document.querySelectorAll('.tab-pane').forEach(function(x){x.classList.remove('on');});b.classList.add('on');document.getElementById('tab-'+b.dataset.t).classList.add('on');};});
+var tid=qp('id');if(!tid){location.href='tournaments.html';}
+function stCls(s){return{ongoing:'st-ongoing',registration:'st-registration',upcoming:'st-upcoming',completed:'st-completed'}[s]||'st-upcoming';}
+function stLbl(s){return{upcoming:'Upcoming',registration:'Registration',ongoing:'Ongoing',completed:'Completed'}[s]||s;}
+function fmtLbl(f){return{single_elimination:'Single Elimination',double_elimination:'Double Elimination',round_robin:'Round Robin'}[f]||f;}
+Promise.all([DB.get('tournaments',tid),DB.read('teams'),DB.read('matches'),DB.readSettings()]).then(function(r){
+  var tour=r[0],allT=r[1],allM=r[2],cfg=r[3];
+  if(!tour){location.href='tournaments.html';return;}
+  var teams=allT.filter(function(t){return t.tournamentId===tid;});
+  var matches=allM.filter(function(m){return m.tournamentId===tid;});
+  document.title=tour.name+' — MLBB Tournament Hub';
+  var b=document.getElementById('tBadge');b.textContent=stLbl(tour.status);b.className='tb-status '+stCls(tour.status);
+  document.getElementById('tName').textContent=tour.name;
+  document.getElementById('tDate').innerHTML='<i class="fas fa-calendar"></i> '+(tour.startDate?fmtDate(tour.startDate)+(tour.endDate?' – '+fmtDate(tour.endDate):''):'—');
+  document.getElementById('tFmt').innerHTML='<i class="fas fa-sitemap"></i> '+fmtLbl(tour.format);
+  document.getElementById('tTeams').innerHTML='<i class="fas fa-users"></i> '+teams.length+' / '+(tour.maxTeams||'?')+' Teams';
+  if(tour.prize)document.getElementById('tPrize').textContent='🏆 '+tour.prize;
+
+  // Teams
+  var tl=document.getElementById('teamsList');
+  tl.innerHTML=teams.length?teams.slice().sort(function(a,b){return (a.seed||99)-(b.seed||99);}).map(function(t){
+    return '<div class="team-c"><div class="team-ava">'+esc((t.tag||t.name.substring(0,3)).toUpperCase())+'</div><div class="team-info"><h4>'+esc(t.name)+'</h4><p>'+esc(t.players||'No roster')+'</p></div>'+(t.seed?'<div class="team-seed">'+t.seed+'</div>':'')+'</div>';
+  }).join(''):'<p class="empty">No teams registered yet.</p>';
+
+  // Schedule & Results
+  var sched=matches.filter(function(m){return m.status!=='completed';}),done=matches.filter(function(m){return m.status==='completed';});
+  function mRow(m){
+    var t1=teams.find(function(t){return t.id===m.team1Id;}),t2=teams.find(function(t){return t.id===m.team2Id;});
+    var isDone=m.status==='completed';
+    var sc=isDone?m.status==='completed'?'st-ongoing':'':'';
+    return '<div class="match-row">'+
+      '<span class="match-tag">R'+(m.round||'?')+' · M'+(m.matchNumber||'?')+'</span>'+
+      '<div class="match-teams">'+
+        '<span class="mteam'+(m.winnerId===m.team1Id?' win':isDone?' lose':'')+'">'+(t1?esc(t1.name):'TBD')+'</span>'+
+        (isDone?'<span class="match-score">'+(m.score1||0)+' – '+(m.score2||0)+'</span>':'<span class="match-vs">VS</span>')+
+        '<span class="mteam'+(m.winnerId===m.team2Id?' win':isDone?' lose':'')+'">'+(t2?esc(t2.name):'TBD')+'</span>'+
+      '</div>'+
+      (m.scheduledAt?'<span class="match-dt"><i class="fas fa-clock"></i> '+fmtDateTime(m.scheduledAt)+'</span>':'')+
+      '<span class="st-badge '+(m.status==='completed'?'st-completed':m.status==='live'?'st-ongoing':'st-upcoming')+'">'+(m.status==='completed'?'Done':m.status==='live'?'LIVE':'Scheduled')+'</span>'+
+    '</div>';
+  }
+  document.getElementById('schedList').innerHTML=sched.length?sched.map(mRow).join(''):'<p class="empty">No upcoming matches scheduled.</p>';
+  document.getElementById('resList').innerHTML=done.length?done.map(mRow).join(''):'<p class="empty">No completed matches yet.</p>';
+
+  // Bracket
+  var pub=tour.bracketPublic===true||cfg.bracketVisibility==='visible';
+  if(!pub||!matches.length){document.getElementById('bLock').style.display='block';document.getElementById('bShow').style.display='none';}
+  else{document.getElementById('bLock').style.display='none';document.getElementById('bShow').style.display='block';document.getElementById('bInner').innerHTML=buildBracket(matches,teams);}
+});
+
+function buildBracket(ms,teams){
+  var rounds={},max=0;
+  ms.forEach(function(m){var r=m.round||1;if(!rounds[r])rounds[r]=[];rounds[r].push(m);if(r>max)max=r;});
+  var html='';
+  for(var r=1;r<=max;r++){
+    var rms=(rounds[r]||[]).slice().sort(function(a,b){return (a.matchNumber||0)-(b.matchNumber||0);});
+    var lbl=max-r===0?'Grand Final':max-r===1?'Semi Finals':max-r===2?'Quarter Finals':'Round '+r;
+    var gap=8+(r-1)*82;
+    html+='<div class="b-round"><div class="b-rlabel">'+lbl+'</div><div class="b-matches" style="gap:'+gap+'px;padding:'+(gap/2)+'px 0">';
+    rms.forEach(function(m){
+      var t1=teams.find(function(t){return t.id===m.team1Id;}),t2=teams.find(function(t){return t.id===m.team2Id;});
+      var w1=m.winnerId&&m.winnerId===m.team1Id,w2=m.winnerId&&m.winnerId===m.team2Id,done=m.status==='completed';
+      html+='<div class="b-match" style="position:relative">'+
+        '<div class="b-mn">M'+(m.matchNumber||'?')+'</div>'+
+        '<div class="b-team'+(w1?' win':w2&&done?' lose':!t1?' tbd':'')+'">'+
+          (t1?'<div class="b-seed">'+(t1.seed||'-')+'</div>':'')+
+          '<span class="b-name">'+(t1?esc(t1.name):'TBD')+'</span>'+
+          '<span class="b-score">'+(done&&m.score1!=null?m.score1:'')+'</span>'+
+        '</div>'+
+        '<div class="b-team'+(w2?' win':w1&&done?' lose':!t2?' tbd':'')+'">'+
+          (t2?'<div class="b-seed">'+(t2.seed||'-')+'</div>':'')+
+          '<span class="b-name">'+(t2?esc(t2.name):'TBD')+'</span>'+
+          '<span class="b-score">'+(done&&m.score2!=null?m.score2:'')+'</span>'+
+        '</div></div>';
+    });
+    html+='</div></div>';
+    if(r<max)html+='<div class="b-conn"><div class="b-conn-line"></div></div>';
+  }
+  var fin=(rounds[max]||[])[0];
+  if(fin&&fin.winnerId){var ch=teams.find(function(t){return t.id===fin.winnerId;});html+='<div class="b-champ"><div class="b-champ-ico">🏆</div><div class="b-champ-label">Champion</div><div class="b-champ-name">'+(ch?esc(ch.name):'TBD')+'</div></div>';}
+  return html;
+}
+</script>
+</body></html>
