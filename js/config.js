@@ -23,8 +23,8 @@ const SITE_CONFIG = {
 // ── GitHub Database Settings ────────────────────────────
 // This is the repo where tournament data (JSON files) will be stored.
 // Format: "your-github-username/your-repo-name"
-const GITHUB_REPO = 'YOUR_GITHUB_USERNAME/YOUR_REPO_NAME';
-
+const GITHUB_REPO = 'itsgamer2o24/Mlbb';
+qq
 // The branch to read/write data on
 const GITHUB_BRANCH = 'main';
 
@@ -35,5 +35,5 @@ const DATA_PATH = 'data';
 // Change these before deploying!
 const ADMIN_CONFIG = {
   username: 'admin',
-  password: 'mlbb2025'   // ← CHANGE THIS
+  password: 'admin123'   // ← CHANGE THIS
 };
