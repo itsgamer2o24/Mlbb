@@ -1,3 +1,0 @@
-# GitHub Pages config - keeps Jekyll from processing our files
-include:
-  - data
