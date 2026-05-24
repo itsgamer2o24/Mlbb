@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "tournamentId": "mpj8g9hs5hik",
+    "round": 1,
+    "matchNumber": 2,
+    "team1Id": "mpjf5hk7m8uyn",
+    "team2Id": "mpjfdebkf6sxv",
+    "winnerId": null,
+    "score1": null,
+    "score2": null,
+    "status": "scheduled",
+    "id": "mpjg28j5mivx6",
+    "createdAt": "2026-05-24T07:16:44.081Z"
+  }
+]
