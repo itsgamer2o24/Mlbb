@@ -5,11 +5,13 @@
     "matchNumber": 2,
     "team1Id": "mpjf5hk7m8uyn",
     "team2Id": "mpjfdebkf6sxv",
-    "winnerId": null,
-    "score1": null,
-    "score2": null,
-    "status": "scheduled",
+    "winnerId": "mpjf5hk7m8uyn",
+    "score1": 2,
+    "score2": 1,
+    "status": "completed",
     "id": "mpjg28j5mivx6",
-    "createdAt": "2026-05-24T07:16:44.081Z"
+    "createdAt": "2026-05-24T07:16:44.081Z",
+    "scheduledAt": "",
+    "updatedAt": "2026-05-24T07:21:45.122Z"
   }
 ]
