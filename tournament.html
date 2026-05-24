@@ -66,7 +66,7 @@
 </div></div>
 
 <footer class="ftr"><div class="wrap ftr-inner"><div class="ftr-logo"><div class="ftr-logo-m"><i class="fas fa-trophy"></i></div> MLBB Tournament Hub</div><p class="ftr-copy">© 2025 MLBB Tournament Hub</p></div></footer>
-<script src="js/config.js"></script><script src="js/db.js"></script>
+<script src="js/config.js"></script><script src="js/db.js"></script><script src="js/bracket.js"></script>
 <script>
 document.getElementById('ham').onclick=function(){document.getElementById('mn').classList.toggle('show');};
 document.querySelectorAll('.tab-b').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tab-b').forEach(function(x){x.classList.remove('on');});document.querySelectorAll('.tab-pane').forEach(function(x){x.classList.remove('on');});b.classList.add('on');document.getElementById('tab-'+b.dataset.t).classList.add('on');};});
@@ -116,40 +116,8 @@ Promise.all([DB.get('tournaments',tid),DB.read('teams'),DB.read('matches'),DB.re
   // Bracket
   var pub=tour.bracketPublic===true||cfg.bracketVisibility==='visible';
   if(!pub||!matches.length){document.getElementById('bLock').style.display='block';document.getElementById('bShow').style.display='none';}
-  else{document.getElementById('bLock').style.display='none';document.getElementById('bShow').style.display='block';document.getElementById('bInner').innerHTML=buildBracket(matches,teams);}
+  else{document.getElementById('bLock').style.display='none';document.getElementById('bShow').style.display='block';document.getElementById('bInner').innerHTML=BracketRenderer.render(matches,teams);}
 });
 
-function buildBracket(ms,teams){
-  var rounds={},max=0;
-  ms.forEach(function(m){var r=m.round||1;if(!rounds[r])rounds[r]=[];rounds[r].push(m);if(r>max)max=r;});
-  var html='';
-  for(var r=1;r<=max;r++){
-    var rms=(rounds[r]||[]).slice().sort(function(a,b){return (a.matchNumber||0)-(b.matchNumber||0);});
-    var lbl=max-r===0?'Grand Final':max-r===1?'Semi Finals':max-r===2?'Quarter Finals':'Round '+r;
-    var gap=8+(r-1)*82;
-    html+='<div class="b-round"><div class="b-rlabel">'+lbl+'</div><div class="b-matches" style="gap:'+gap+'px;padding:'+(gap/2)+'px 0">';
-    rms.forEach(function(m){
-      var t1=teams.find(function(t){return t.id===m.team1Id;}),t2=teams.find(function(t){return t.id===m.team2Id;});
-      var w1=m.winnerId&&m.winnerId===m.team1Id,w2=m.winnerId&&m.winnerId===m.team2Id,done=m.status==='completed';
-      html+='<div class="b-match" style="position:relative">'+
-        '<div class="b-mn">M'+(m.matchNumber||'?')+'</div>'+
-        '<div class="b-team'+(w1?' win':w2&&done?' lose':!t1?' tbd':'')+'">'+
-          (t1?'<div class="b-seed">'+(t1.seed||'-')+'</div>':'')+
-          '<span class="b-name">'+(t1?esc(t1.name):'TBD')+'</span>'+
-          '<span class="b-score">'+(done&&m.score1!=null?m.score1:'')+'</span>'+
-        '</div>'+
-        '<div class="b-team'+(w2?' win':w1&&done?' lose':!t2?' tbd':'')+'">'+
-          (t2?'<div class="b-seed">'+(t2.seed||'-')+'</div>':'')+
-          '<span class="b-name">'+(t2?esc(t2.name):'TBD')+'</span>'+
-          '<span class="b-score">'+(done&&m.score2!=null?m.score2:'')+'</span>'+
-        '</div></div>';
-    });
-    html+='</div></div>';
-    if(r<max)html+='<div class="b-conn"><div class="b-conn-line"></div></div>';
-  }
-  var fin=(rounds[max]||[])[0];
-  if(fin&&fin.winnerId){var ch=teams.find(function(t){return t.id===fin.winnerId;});html+='<div class="b-champ"><div class="b-champ-ico">🏆</div><div class="b-champ-label">Champion</div><div class="b-champ-name">'+(ch?esc(ch.name):'TBD')+'</div></div>';}
-  return html;
-}
 </script>
 </body></html>

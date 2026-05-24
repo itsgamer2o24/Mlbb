@@ -70,10 +70,21 @@
   <div class="adm-sec" id="s-settings">
     <div class="adm-card" style="padding:24px">
       <h3 style="font-family:var(--title);font-size:19px;font-weight:700;letter-spacing:.5px;margin-bottom:20px"><i class="fas fa-cog" style="color:var(--gold)"></i> Site Settings</h3>
-      <div class="f-row"><div class="fg"><label>Site Title</label><input type="text" id="cfg-title"></div><div class="fg"><label>Season Label</label><input type="text" id="cfg-season"></div></div>
-      <div class="fg"><label>Bracket Visibility</label><select class="adm-sel" id="cfg-bvis" style="width:100%"><option value="hidden">Hidden (Admin Only)</option><option value="visible">Visible to Everyone</option></select></div>
-      <div class="fg"><label>GitHub Repo</label><input type="text" id="cfg-repo" placeholder="owner/repo"></div>
-      <button class="btn btn-gold" id="btnSaveCfg"><i class="fas fa-save"></i> Save Settings</button>
+      <div class="f-row"><div class="fg"><label>Site Title</label><input type="text" id="cfg-title" value="MLBB Tournament Hub"></div><div class="fg"><label>Season Label</label><input type="text" id="cfg-season" value="Season 2025"></div></div>
+      <div class="fg"><label>Bracket Visibility (default for all tournaments)</label><select class="adm-sel" id="cfg-bvis" style="width:100%"><option value="hidden">Hidden — Admin Only</option><option value="visible">Visible to Everyone</option></select></div>
+      <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:16px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:800;color:#00D4FF;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px"><i class="fas fa-database"></i> GitHub Connection</div>
+        <div class="f-row">
+          <div class="fg" style="margin-bottom:0"><label>GitHub Repo</label><input type="text" id="cfg-repo" placeholder="e.g. itsgamer2o24/Mlbb"></div>
+          <div class="fg" style="margin-bottom:0"><label>GitHub Token (re-enter to update)</label><input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxx"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px"><i class="fas fa-info-circle"></i> Token needs <strong style="color:var(--text)">repo</strong> scope. <a href="https://github.com/settings/tokens/new?scopes=repo&description=mlbb-admin" target="_blank" style="color:#00D4FF">Generate new token ↗</a></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-gold" id="btnSaveCfg"><i class="fas fa-save"></i> Save Settings</button>
+        <button class="btn btn-ghost btn-sm" onclick="testConnection()" style="font-size:12px"><i class="fas fa-plug"></i> Test Connection</button>
+      </div>
+      <div id="connStatus" style="margin-top:12px;font-size:13px;display:none"></div>
     </div>
   </div>
 </main>
@@ -378,10 +389,38 @@ function toggleBPub(tid,val){DB.update('tournaments',tid,{bracketPublic:val}).th
 
 // SETTINGS
 function renderSettings(){
-  DB.readSettings().then(function(cfg){sv('cfg-title',cfg.siteTitle||'');sv('cfg-season',cfg.season||'');sv('cfg-bvis',cfg.bracketVisibility||'hidden');sv('cfg-repo',sessionStorage.getItem('repo')||(typeof GITHUB_REPO!=='undefined'?GITHUB_REPO:''));});
+  DB.readSettings().then(function(cfg){
+    sv('cfg-title',cfg.siteTitle||'MLBB Tournament Hub');
+    sv('cfg-season',cfg.season||'Season 2025');
+    sv('cfg-bvis',cfg.bracketVisibility||'hidden');
+    sv('cfg-repo',sessionStorage.getItem('repo')||(typeof GITHUB_REPO!=='undefined'?GITHUB_REPO:''));
+    sv('cfg-token','');
+    var s=document.getElementById('connStatus');if(s)s.style.display='none';
+  });
 }
 function saveCfg(){
-  DB.writeSettings({siteTitle:gv('cfg-title'),season:gv('cfg-season'),bracketVisibility:gv('cfg-bvis')}).then(function(){var r=gv('cfg-repo');if(r)sessionStorage.setItem('repo',r);toast('Settings saved!');}).catch(function(e){toast('Error: '+e.message,'err');});
+  var r=gv('cfg-repo'),tok=gv('cfg-token');
+  if(r) sessionStorage.setItem('repo',r.trim());
+  if(tok && tok.trim()) sessionStorage.setItem('token',tok.trim());
+  DB.writeSettings({siteTitle:gv('cfg-title'),season:gv('cfg-season'),bracketVisibility:gv('cfg-bvis')})
+    .then(function(){toast('Settings saved!');loadAll(function(){});})
+    .catch(function(e){toast(e.message,'err');});
+}
+function testConnection(){
+  var r=gv('cfg-repo')||sessionStorage.getItem('repo');
+  var tok=gv('cfg-token')||sessionStorage.getItem('token');
+  var s=document.getElementById('connStatus');
+  s.style.display='block';s.style.color='#00D4FF';s.innerHTML='<i class="fas fa-spinner fa-spin"></i> Testing connection...';
+  if(!r||!r.includes('/')){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> No repo set. Enter your repo above.';return;}
+  if(!tok){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> No token. Enter your token above.';return;}
+  fetch('https://api.github.com/repos/'+r.trim(),{headers:{'Authorization':'Bearer '+tok.trim(),'Accept':'application/vnd.github+json'}})
+    .then(function(res){
+      if(res.status===200){s.style.color='#00FF87';s.innerHTML='<i class="fas fa-check-circle"></i> Connected! Repo found and token is valid.';}
+      else if(res.status===401){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> Bad credentials — token is wrong or expired. <a href="https://github.com/settings/tokens/new?scopes=repo&description=mlbb-admin" target="_blank" style="color:#00D4FF">Get a new one ↗</a>';}
+      else if(res.status===403){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> Token has no repo permission. Regenerate with "repo" scope.';}
+      else if(res.status===404){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> Repo "'+r+'" not found. Check spelling.';}
+      else{s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> Error '+res.status+'. Check repo and token.';}
+    }).catch(function(){s.style.color='#ff8a80';s.innerHTML='<i class="fas fa-times-circle"></i> Network error. Check your internet.';});
 }
 
 // HELPERS
