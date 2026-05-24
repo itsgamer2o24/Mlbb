@@ -8,5 +8,15 @@
     "seed": 1,
     "id": "mpjdq6ueagy9x",
     "createdAt": "2026-05-24T06:11:22.790Z"
+  },
+  {
+    "name": "test2",
+    "tag": "t23",
+    "tournamentId": "mpj8g9hs5hik",
+    "players": "Player3",
+    "contact": "idk",
+    "seed": 2,
+    "id": "mpjf5hk7m8uyn",
+    "createdAt": "2026-05-24T06:51:16.135Z"
   }
 ]
