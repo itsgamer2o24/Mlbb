@@ -2,7 +2,7 @@
   "tournaments": [
     {
       "id": 1,
-      "name": "",
+      "name": "test",
       "organizer": "",
       "dateStart": "",
       "dateEnd": "",
