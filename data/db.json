@@ -91,9 +91,9 @@
                 "id": 3,
                 "team1": 1,
                 "team2": 2,
-                "score1": 0,
+                "score1": 2,
                 "score2": 1,
-                "winner": 2,
+                "winner": 1,
                 "status": "done",
                 "date": "TBD",
                 "time": "TBD",
@@ -126,7 +126,7 @@
           "matches": [
             {
               "id": 5,
-              "team1": null,
+              "team1": 1,
               "team2": null,
               "score1": null,
               "score2": null,
